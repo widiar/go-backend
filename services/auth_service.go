@@ -11,6 +11,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+	"github.com/labstack/echo/v5"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -42,7 +43,7 @@ func RegisterService(data *dto.RegisterRequest) (*dto.ResponseDto, error) {
 
 func LoginService(data *dto.LoginRequest) (*dto.ResponseDto, error) {
 	var user models.Users
-	if err := config.DB.Find(&user, "username = ?", data.Username).Error; err != nil {
+	if err := config.DB.First(&user, "username = ?", data.Username).Error; err != nil {
 		var textErr string
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			textErr = "User not found"
@@ -71,4 +72,9 @@ func LoginService(data *dto.LoginRequest) (*dto.ResponseDto, error) {
 		Token: token,
 	}
 	return new(dto.SuccessResponse(&dataResp)), nil
+}
+
+func MeService(c *echo.Context) (*dto.ResponseDto, error) {
+	userToken := c.Get("user").(*dto.UserToken)
+	return new(dto.SuccessResponse(&userToken)), nil
 }

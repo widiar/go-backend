@@ -52,3 +52,13 @@ func LoginHandler(c *echo.Context) error {
 	c.SetCookie(cookie)
 	return c.JSON(http.StatusOK, resp)
 }
+
+func MeHandler(c *echo.Context) error {
+	c.Logger().Info("[START] Me")
+	resp, err := services.MeService(c)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, resp)
+	}
+	c.Logger().Info("[END] Me", "error", err)
+	return c.JSON(http.StatusOK, resp)
+}

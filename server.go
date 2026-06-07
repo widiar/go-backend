@@ -15,6 +15,10 @@ func main() {
 	e := echo.New()
 	e.Use(middlewares.CorrelationLogger())
 	e.Use(middleware.RequestLogger())
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowCredentials: true,
+	}))
 
 	// load env
 	if err := godotenv.Load(); err != nil {
