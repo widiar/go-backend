@@ -1,6 +1,9 @@
 package main
 
 import (
+	"backendmaw/config"
+	"backendmaw/middlewares"
+	"backendmaw/routes"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -10,6 +13,7 @@ import (
 
 func main() {
 	e := echo.New()
+	e.Use(middlewares.CorrelationLogger())
 	e.Use(middleware.RequestLogger())
 
 	// load env
@@ -17,6 +21,11 @@ func main() {
 		e.Logger.Error("Error loading .env file!", "error", err)
 		return
 	}
+
+	config.ConnectDB()
+	routes.Routes(e)
+	e.Validator = config.NewCustomValidator()
+	e.HTTPErrorHandler = config.SetupHttpErrorHandler
 
 	if err := e.Start(":" + os.Getenv("PORT")); err != nil {
 		e.Logger.Error("Failed to start server", "error", err)
