@@ -23,7 +23,13 @@ func ConnectDB() {
 	if err != nil {
 		panic("ERROR Connect to DB")
 	}
-	database.AutoMigrate(&models.Users{})
+
+	if errMigrate := database.AutoMigrate(
+		&models.Users{},
+		&models.Merchant{}); errMigrate != nil {
+		fmt.Println("ERROR Auto migrate", errMigrate)
+		panic("ERROR AutoMigrate DB")
+	}
 
 	DB = database
 }

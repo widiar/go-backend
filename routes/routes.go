@@ -13,4 +13,5 @@ func Routes(e *echo.Echo) {
 	protectedGroup := e.Group("/api")
 	protectedGroup.Use(middlewares.JwtMiddleware)
 	BannerRoute(protectedGroup)
+	MerchantRoutes(protectedGroup)
 }
