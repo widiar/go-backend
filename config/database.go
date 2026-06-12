@@ -26,7 +26,8 @@ func ConnectDB() {
 
 	if errMigrate := database.AutoMigrate(
 		&models.Users{},
-		&models.Merchant{}); errMigrate != nil {
+		&models.Merchant{},
+		&models.Feature{}); errMigrate != nil {
 		fmt.Println("ERROR Auto migrate", errMigrate)
 		panic("ERROR AutoMigrate DB")
 	}
