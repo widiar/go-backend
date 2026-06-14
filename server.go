@@ -21,9 +21,14 @@ func main() {
 	}))
 
 	// load env
-	if err := godotenv.Load(); err != nil {
-		e.Logger.Error("Error loading .env file!", "error", err)
-		return
+	if os.Getenv("DB_HOST") == "" {
+		if err := godotenv.Load(); err != nil {
+			e.Logger.Error("Error loading .env file!", "error", err)
+			return
+		}
+		e.Logger.Info("Using environment variable from .env file")
+	} else {
+		e.Logger.Info("Using environment variable from Docker")
 	}
 
 	config.ConnectDB()
