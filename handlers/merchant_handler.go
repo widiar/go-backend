@@ -54,3 +54,24 @@ func DeleteMerchantHandler(c *echo.Context) error {
 	c.Logger().Info("[END] DeleteMerchantHandler", "error", err)
 	return c.JSON(response.Status, response)
 }
+
+func MerchantFeatureHandler(c *echo.Context) error {
+	c.Logger().Info("[START] MerchantFeatureHandler")
+	var request dto.MerchantFeatureRequest
+	if err := c.Bind(&request); err != nil {
+		return c.JSON(http.StatusBadRequest, "Invalid Input")
+	}
+	if err := c.Validate(request); err != nil {
+		return err
+	}
+	response, err := services.RelateFeatureService(&request)
+	c.Logger().Info("[END] MerchantFeatureHandler", "error", err)
+	return c.JSON(response.Status, response)
+}
+
+func ListMerchantFeatureHandler(c *echo.Context) error {
+	c.Logger().Info("[START] ListMerchantFeatureHandler")
+	response, err := services.ListMerchantFeatureService()
+	c.Logger().Info("[END] ListMerchantFeatureHandler", "error", err)
+	return c.JSON(http.StatusOK, response)
+}

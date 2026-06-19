@@ -24,7 +24,7 @@ func main() {
 	if os.Getenv("DB_HOST") == "" {
 		if err := godotenv.Load(); err != nil {
 			e.Logger.Error("Error loading .env file!", "error", err)
-			return
+			panic(err)
 		}
 		e.Logger.Info("Using environment variable from .env file")
 	} else {
