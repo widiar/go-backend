@@ -6,7 +6,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: backend_maw
+    container_name: backend-maw
     ports:
       - "1000:1000"
     env_file:
