@@ -7,10 +7,12 @@ import (
 )
 
 type Feature struct {
+	gorm.Model
 	Id        string `gorm:"primary_key"`
 	Name      string `gorm:"unique;not null"`
 	Label     string `gorm:"not null"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
+	Merchants []*Merchant    `gorm:"many2many:merchant_features;"`
 }
