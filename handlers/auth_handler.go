@@ -62,3 +62,19 @@ func MeHandler(c *echo.Context) error {
 	c.Logger().Info("[END] Me", "error", err)
 	return c.JSON(http.StatusOK, resp)
 }
+
+func LogoutHandler(c *echo.Context) error {
+	c.Logger().Info("[START] Logout")
+	cookie := &http.Cookie{
+		Name:     "token",
+		Value:    "",
+		Path:     "/",
+		Expires:  time.Now().Add(-1 * time.Hour),
+		MaxAge:   -1,
+		HttpOnly: true,
+		Secure:   false,
+		SameSite: http.SameSiteLaxMode,
+	}
+	c.SetCookie(cookie)
+	return c.JSON(http.StatusOK, "Success")
+}
