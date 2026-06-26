@@ -15,4 +15,5 @@ func Routes(e *echo.Echo) {
 	BannerRoute(protectedGroup)
 	MerchantRoutes(protectedGroup)
 	FeatureRoutes(protectedGroup)
+	WaRoutes(protectedGroup)
 }

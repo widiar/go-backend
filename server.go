@@ -32,6 +32,7 @@ func main() {
 	}
 
 	config.ConnectDB()
+	config.SetupWa()
 	routes.Routes(e)
 	e.Validator = config.NewCustomValidator()
 	e.HTTPErrorHandler = config.SetupHttpErrorHandler
