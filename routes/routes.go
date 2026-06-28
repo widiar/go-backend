@@ -1,19 +1,20 @@
 package routes
 
 import (
+	"backendmaw/handlers"
 	"backendmaw/middlewares"
 
 	"github.com/labstack/echo/v5"
 )
 
-func Routes(e *echo.Echo) {
+func Setup(e *echo.Echo, h *handlers.Handlers) {
 	authGroup := e.Group("/api/auth")
-	AuthRoutes(authGroup)
+	AuthRoutes(authGroup, h.Auth)
 
 	protectedGroup := e.Group("/api")
 	protectedGroup.Use(middlewares.JwtMiddleware)
-	BannerRoute(protectedGroup)
-	MerchantRoutes(protectedGroup)
-	FeatureRoutes(protectedGroup)
-	WaRoutes(protectedGroup)
+	BannerRoute(protectedGroup, h.Banner)
+	FeatureRoutes(protectedGroup, h.Feature)
+	MerchantRoutes(protectedGroup, h.Merchant)
+	WaRoutes(protectedGroup, h.Wa)
 }

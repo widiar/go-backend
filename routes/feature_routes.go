@@ -6,9 +6,9 @@ import (
 	"github.com/labstack/echo/v5"
 )
 
-func FeatureRoutes(g *echo.Group) {
-	g.GET("/features", handlers.ListFeatureHandler)
-	g.POST("/features", handlers.CreateFeatureHandler)
-	g.PUT("/features/:id", handlers.UpdateFeatureHandler)
-	g.DELETE("/features/:id", handlers.DeleteFeatureHandler)
+func FeatureRoutes(g *echo.Group, handlers *handlers.FeatureHandler) {
+	g.GET("/features", handlers.List)
+	g.POST("/features", handlers.Create)
+	g.PUT("/features/:id", handlers.Update)
+	g.DELETE("/features/:id", handlers.Delete)
 }

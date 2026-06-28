@@ -1,7 +1,6 @@
 package services
 
 import (
-	"backendmaw/config"
 	"backendmaw/dto"
 	"backendmaw/models"
 	"errors"
@@ -16,13 +15,21 @@ import (
 	"gorm.io/gorm"
 )
 
-func RegisterService(data *dto.RegisterRequest) (*dto.ResponseDto, error) {
+type AuthService struct {
+	DB *gorm.DB
+}
+
+func NewAuthService(db *gorm.DB) *AuthService {
+	return &AuthService{DB: db}
+}
+
+func (s *AuthService) Register(data *dto.RegisterRequest) (*dto.ResponseDto, error) {
 	var count int64
-	if err := config.DB.Model(&models.Users{}).Where("email = ? OR username = ?", data.Email, data.Username).Count(&count).Error; err != nil {
+	if err := s.DB.Model(&models.Users{}).Where("email = ? OR username = ?", data.Email, data.Username).Count(&count).Error; err != nil {
 		return new(dto.ErrorResponse()), err
 	}
 	if count > 0 {
-		err := errors.New("User already exists")
+		err := errors.New("user already exists")
 		return new(dto.FailedResponse("User already exists", http.StatusConflict)), err
 	}
 	passwordHash, _ := bcrypt.GenerateFromPassword([]byte(data.Password), bcrypt.DefaultCost)
@@ -32,7 +39,7 @@ func RegisterService(data *dto.RegisterRequest) (*dto.ResponseDto, error) {
 	user.Email = data.Email
 	user.Password = string(passwordHash)
 
-	if err := config.DB.Create(&user).Error; err != nil {
+	if err := s.DB.Create(&user).Error; err != nil {
 		return new(dto.ErrorResponse()), err
 	}
 	dataResponse := dto.RegisterResponse{Username: user.Username, Email: user.Email}
@@ -41,9 +48,9 @@ func RegisterService(data *dto.RegisterRequest) (*dto.ResponseDto, error) {
 	return &response, nil
 }
 
-func LoginService(data *dto.LoginRequest) (*dto.ResponseDto, error) {
+func (s *AuthService) Login(data *dto.LoginRequest) (*dto.ResponseDto, error) {
 	var user models.Users
-	if err := config.DB.First(&user, "username = ?", data.Username).Error; err != nil {
+	if err := s.DB.First(&user, "username = ?", data.Username).Error; err != nil {
 		var textErr string
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			textErr = "User not found"
@@ -74,7 +81,7 @@ func LoginService(data *dto.LoginRequest) (*dto.ResponseDto, error) {
 	return new(dto.SuccessResponse(&dataResp)), nil
 }
 
-func MeService(c *echo.Context) (*dto.ResponseDto, error) {
+func (s *AuthService) Me(c *echo.Context) (*dto.ResponseDto, error) {
 	userToken := c.Get("user").(*dto.UserToken)
 	return new(dto.SuccessResponse(&userToken)), nil
 }

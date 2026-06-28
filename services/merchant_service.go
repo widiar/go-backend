@@ -1,7 +1,6 @@
 package services
 
 import (
-	"backendmaw/config"
 	"backendmaw/dto"
 	"backendmaw/models"
 	"errors"
@@ -10,8 +9,16 @@ import (
 	"gorm.io/gorm"
 )
 
-func ListMerchantService() (*dto.ResponseDto, error) {
-	data, err := ListAndMap(func(m models.Merchant) dto.MerchantResponse {
+type MerchantService struct {
+	DB *gorm.DB
+}
+
+func NewMerchantService(db *gorm.DB) *MerchantService {
+	return &MerchantService{DB: db}
+}
+
+func (s *MerchantService) List() (*dto.ResponseDto, error) {
+	data, err := ListAndMap(s.DB, func(m models.Merchant) dto.MerchantResponse {
 		return dto.MerchantResponse{
 			Id:          m.Id,
 			Name:        m.Name,
@@ -24,8 +31,8 @@ func ListMerchantService() (*dto.ResponseDto, error) {
 	return new(dto.SuccessResponse(data)), nil
 }
 
-func CreateMerchantService(merchant *dto.MerchantRequest) (*dto.ResponseDto, error) {
-	switch err := CreateAndValidate(merchant, "name = ?",
+func (s *MerchantService) Create(merchant *dto.MerchantRequest) (*dto.ResponseDto, error) {
+	switch err := CreateAndValidate(s.DB, merchant, "name = ?",
 		func(r *dto.MerchantRequest) string { return r.Name },
 		func(r *dto.MerchantRequest, id string) models.Merchant {
 			return models.Merchant{
@@ -43,9 +50,9 @@ func CreateMerchantService(merchant *dto.MerchantRequest) (*dto.ResponseDto, err
 	return new(dto.SuccessResponse(merchant)), nil
 }
 
-func UpdateMerchantService(id string, merchant *dto.MerchantRequest) (*dto.ResponseDto, error) {
+func (s *MerchantService) Update(id string, merchant *dto.MerchantRequest) (*dto.ResponseDto, error) {
 	//check id exist or not
-	switch err := UpdateAndValidate(merchant, "name", &id, func(r *dto.MerchantRequest) string { return r.Name }, models.Merchant{}); {
+	switch err := UpdateAndValidate(s.DB, merchant, "name", &id, func(r *dto.MerchantRequest) string { return r.Name }, models.Merchant{}); {
 	case err != nil:
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return new(dto.FailedResponse("Merchant not found", http.StatusOK)), err
@@ -57,8 +64,8 @@ func UpdateMerchantService(id string, merchant *dto.MerchantRequest) (*dto.Respo
 	return new(dto.SuccessResponse(merchant)), nil
 }
 
-func DeleteMerchantService(id string) (*dto.ResponseDto, error) {
-	if err := config.DB.Delete(&models.Merchant{}, "id = ?", id).Error; err != nil {
+func (s *MerchantService) Delete(id string) (*dto.ResponseDto, error) {
+	if err := s.DB.Delete(&models.Merchant{}, "id = ?", id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return new(dto.FailedResponse("Merchant not found", http.StatusOK)), err
 		}
@@ -67,7 +74,7 @@ func DeleteMerchantService(id string) (*dto.ResponseDto, error) {
 	return new(dto.SuccessResponse("Merchant deleted")), nil
 }
 
-func RelateFeatureService(request *dto.MerchantFeatureRequest) (*dto.ResponseDto, error) {
+func (s *MerchantService) RelateFeature(request *dto.MerchantFeatureRequest) (*dto.ResponseDto, error) {
 	//extract merchant and feature id
 	merchantIdMap := make(map[string]bool)
 	featureIdMap := make(map[string]bool)
@@ -88,7 +95,7 @@ func RelateFeatureService(request *dto.MerchantFeatureRequest) (*dto.ResponseDto
 
 	// validate merchant id and feature id
 	var merchantValidCount int64
-	if err := config.DB.Model(&models.Merchant{}).Where("id IN ?", payloadMerchantId).Count(&merchantValidCount).Error; err != nil {
+	if err := s.DB.Model(&models.Merchant{}).Where("id IN ?", payloadMerchantId).Count(&merchantValidCount).Error; err != nil {
 		return new(dto.ErrorResponse()), err
 	}
 	if int(merchantValidCount) != len(payloadMerchantId) {
@@ -96,7 +103,7 @@ func RelateFeatureService(request *dto.MerchantFeatureRequest) (*dto.ResponseDto
 	}
 	if len(payloadFeatureId) > 0 {
 		var featureValidCount int64
-		if err := config.DB.Model(&models.Feature{}).Where("id IN ?", payloadFeatureId).Count(&featureValidCount).Error; err != nil {
+		if err := s.DB.Model(&models.Feature{}).Where("id IN ?", payloadFeatureId).Count(&featureValidCount).Error; err != nil {
 			return new(dto.ErrorResponse()), err
 		}
 		if int(featureValidCount) != len(payloadFeatureId) {
@@ -105,7 +112,7 @@ func RelateFeatureService(request *dto.MerchantFeatureRequest) (*dto.ResponseDto
 	}
 
 	//put on db
-	err := config.DB.Transaction(func(tx *gorm.DB) error {
+	err := s.DB.Transaction(func(tx *gorm.DB) error {
 		for _, update := range request.Items {
 			var newFeatures []*models.Feature
 			for _, featureId := range update.FeatureId {
@@ -124,9 +131,9 @@ func RelateFeatureService(request *dto.MerchantFeatureRequest) (*dto.ResponseDto
 	return new(dto.SuccessResponse(request)), nil
 }
 
-func ListMerchantFeatureService() (*dto.ResponseDto, error) {
+func (s *MerchantService) ListMerchantFeature() (*dto.ResponseDto, error) {
 	var merchants []models.Merchant
-	if err := config.DB.Model(&models.Merchant{}).Preload("Features").Find(&merchants).Error; err != nil {
+	if err := s.DB.Model(&models.Merchant{}).Preload("Features").Find(&merchants).Error; err != nil {
 		return new(dto.ErrorResponse()), err
 	}
 	response := make([]dto.MerchantFeatureResponse, 0, len(merchants))

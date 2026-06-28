@@ -2,8 +2,10 @@ package main
 
 import (
 	"backendmaw/config"
+	"backendmaw/handlers"
 	"backendmaw/middlewares"
 	"backendmaw/routes"
+	"fmt"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -31,9 +33,20 @@ func main() {
 		e.Logger.Info("Using environment variable from Docker")
 	}
 
-	config.ConnectDB()
-	config.SetupWa()
-	routes.Routes(e)
+	//load db
+	db := config.ConnectDB()
+	sqlDb, _ := db.DB()
+	defer func() {
+		if err := sqlDb.Close(); err != nil {
+			fmt.Println("Failed to close DB")
+		} else {
+			fmt.Println("DB closed safely")
+		}
+	}()
+
+	waContainer := config.SetupWa(sqlDb)
+	handler := handlers.Setup(db, waContainer)
+	routes.Setup(e, handler)
 	e.Validator = config.NewCustomValidator()
 	e.HTTPErrorHandler = config.SetupHttpErrorHandler
 

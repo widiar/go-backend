@@ -7,9 +7,17 @@ import (
 	"github.com/labstack/echo/v5"
 )
 
-func ListBannerHandler(c *echo.Context) error {
+type BannerHandler struct {
+	service *services.BannerService
+}
+
+func NewBannerHandler(service *services.BannerService) *BannerHandler {
+	return &BannerHandler{service}
+}
+
+func (h *BannerHandler) ListBanner(c *echo.Context) error {
 	c.Logger().Info("[END] ListBannerHandler")
-	resp, err := services.ListBannersService()
+	resp, err := h.service.ListBanner()
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}

@@ -8,9 +8,17 @@ import (
 	"github.com/labstack/echo/v5"
 )
 
-func ListMerchantHandler(c *echo.Context) error {
+type MerchantHandler struct {
+	service *services.MerchantService
+}
+
+func NewMerchantHandler(service *services.MerchantService) *MerchantHandler {
+	return &MerchantHandler{service: service}
+}
+
+func (h *MerchantHandler) List(c *echo.Context) error {
 	c.Logger().Info("[START] ListMerchantHandler")
-	response, err := services.ListMerchantService()
+	response, err := h.service.List()
 	c.Logger().Info("[END] ListMerchantHandler", "error", err)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, response)
@@ -18,7 +26,7 @@ func ListMerchantHandler(c *echo.Context) error {
 	return c.JSON(http.StatusOK, response)
 }
 
-func CreateMerchantHandler(c *echo.Context) error {
+func (h *MerchantHandler) Create(c *echo.Context) error {
 	c.Logger().Info("[START] CreateMerchantHandler")
 	var request dto.MerchantRequest
 	if err := c.Bind(&request); err != nil {
@@ -27,12 +35,12 @@ func CreateMerchantHandler(c *echo.Context) error {
 	if err := c.Validate(request); err != nil {
 		return err
 	}
-	response, err := services.CreateMerchantService(&request)
+	response, err := h.service.Create(&request)
 	c.Logger().Info("[END] CreateMerchantHandler", "error", err)
 	return c.JSON(response.Status, response)
 }
 
-func UpdateMerchantHandler(c *echo.Context) error {
+func (h *MerchantHandler) Update(c *echo.Context) error {
 	c.Logger().Info("[START] UpdateMerchantHandler")
 	id := c.Param("id")
 	var request dto.MerchantRequest
@@ -42,20 +50,20 @@ func UpdateMerchantHandler(c *echo.Context) error {
 	if err := c.Validate(request); err != nil {
 		return err
 	}
-	response, err := services.UpdateMerchantService(id, &request)
+	response, err := h.service.Update(id, &request)
 	c.Logger().Info("[END] UpdateMerchantHandler", "error", err)
 	return c.JSON(response.Status, response)
 }
 
-func DeleteMerchantHandler(c *echo.Context) error {
+func (h *MerchantHandler) Delete(c *echo.Context) error {
 	c.Logger().Info("[START] DeleteMerchantHandler")
 	id := c.Param("id")
-	response, err := services.DeleteMerchantService(id)
+	response, err := h.service.Delete(id)
 	c.Logger().Info("[END] DeleteMerchantHandler", "error", err)
 	return c.JSON(response.Status, response)
 }
 
-func MerchantFeatureHandler(c *echo.Context) error {
+func (h *MerchantHandler) MerchantFeature(c *echo.Context) error {
 	c.Logger().Info("[START] MerchantFeatureHandler")
 	var request dto.MerchantFeatureRequest
 	if err := c.Bind(&request); err != nil {
@@ -64,14 +72,14 @@ func MerchantFeatureHandler(c *echo.Context) error {
 	if err := c.Validate(request); err != nil {
 		return err
 	}
-	response, err := services.RelateFeatureService(&request)
+	response, err := h.service.RelateFeature(&request)
 	c.Logger().Info("[END] MerchantFeatureHandler", "error", err)
 	return c.JSON(response.Status, response)
 }
 
-func ListMerchantFeatureHandler(c *echo.Context) error {
+func (h *MerchantHandler) ListMerchantFeature(c *echo.Context) error {
 	c.Logger().Info("[START] ListMerchantFeatureHandler")
-	response, err := services.ListMerchantFeatureService()
+	response, err := h.service.ListMerchantFeature()
 	c.Logger().Info("[END] ListMerchantFeatureHandler", "error", err)
 	return c.JSON(http.StatusOK, response)
 }

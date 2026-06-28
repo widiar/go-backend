@@ -9,7 +9,15 @@ import (
 	"github.com/labstack/echo/v5"
 )
 
-func RegisterHandler(c *echo.Context) error {
+type AuthHandler struct {
+	AuthService *services.AuthService
+}
+
+func NewAuthHandler(authService *services.AuthService) *AuthHandler {
+	return &AuthHandler{AuthService: authService}
+}
+
+func (h *AuthHandler) Register(c *echo.Context) error {
 	c.Logger().Info("[START] Register")
 	register := new(dto.RegisterRequest)
 	if err := c.Bind(register); err != nil {
@@ -18,7 +26,7 @@ func RegisterHandler(c *echo.Context) error {
 	if err := c.Validate(register); err != nil {
 		return err
 	}
-	resp, err := services.RegisterService(register)
+	resp, err := h.AuthService.Register(register)
 	c.Logger().Info("[END] Register", "error", err)
 	if err != nil {
 		return c.JSON(resp.Status, resp)
@@ -26,7 +34,7 @@ func RegisterHandler(c *echo.Context) error {
 	return c.JSON(http.StatusCreated, resp)
 }
 
-func LoginHandler(c *echo.Context) error {
+func (h *AuthHandler) Login(c *echo.Context) error {
 	c.Logger().Info("[START] Login")
 	login := new(dto.LoginRequest)
 	if err := c.Bind(login); err != nil {
@@ -35,7 +43,7 @@ func LoginHandler(c *echo.Context) error {
 	if err := c.Validate(login); err != nil {
 		return err
 	}
-	resp, err := services.LoginService(login)
+	resp, err := h.AuthService.Login(login)
 	c.Logger().Info("[END] Login", "error", err)
 	if err != nil {
 		return c.JSON(resp.Status, resp)
@@ -53,9 +61,9 @@ func LoginHandler(c *echo.Context) error {
 	return c.JSON(http.StatusOK, resp)
 }
 
-func MeHandler(c *echo.Context) error {
+func (h *AuthHandler) Me(c *echo.Context) error {
 	c.Logger().Info("[START] Me")
-	resp, err := services.MeService(c)
+	resp, err := h.AuthService.Me(c)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, resp)
 	}
@@ -63,7 +71,7 @@ func MeHandler(c *echo.Context) error {
 	return c.JSON(http.StatusOK, resp)
 }
 
-func LogoutHandler(c *echo.Context) error {
+func (h *AuthHandler) Logout(c *echo.Context) error {
 	c.Logger().Info("[START] Logout")
 	cookie := &http.Cookie{
 		Name:     "token",

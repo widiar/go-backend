@@ -9,9 +9,7 @@ import (
 	"gorm.io/gorm"
 )
 
-var DB *gorm.DB
-
-func ConnectDB() {
+func ConnectDB() *gorm.DB {
 	host := os.Getenv("DB_HOST")
 	dbUser := os.Getenv("DB_USER")
 	dbPassword := os.Getenv("DB_PASSWORD")
@@ -32,5 +30,5 @@ func ConnectDB() {
 		panic("ERROR AutoMigrate DB")
 	}
 
-	DB = database
+	return database
 }

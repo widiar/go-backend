@@ -8,9 +8,17 @@ import (
 	"github.com/labstack/echo/v5"
 )
 
-func ListFeatureHandler(c *echo.Context) error {
+type FeatureHandler struct {
+	service *services.FeatureService
+}
+
+func NewFeatureHandler(service *services.FeatureService) *FeatureHandler {
+	return &FeatureHandler{service: service}
+}
+
+func (h *FeatureHandler) List(c *echo.Context) error {
 	c.Logger().Info("[START] ListMerchantHandler")
-	response, err := services.ListFeatureService()
+	response, err := h.service.List()
 	c.Logger().Info("[END] ListMerchantHandler", "error", err)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, response)
@@ -18,7 +26,7 @@ func ListFeatureHandler(c *echo.Context) error {
 	return c.JSON(http.StatusOK, response)
 }
 
-func CreateFeatureHandler(c *echo.Context) error {
+func (h *FeatureHandler) Create(c *echo.Context) error {
 	c.Logger().Info("[START] CreateFeatureHandler")
 	var request dto.FeatureRequest
 	if err := c.Bind(&request); err != nil {
@@ -27,12 +35,12 @@ func CreateFeatureHandler(c *echo.Context) error {
 	if err := c.Validate(request); err != nil {
 		return err
 	}
-	response, err := services.CreateFeatureService(&request)
+	response, err := h.service.Create(&request)
 	c.Logger().Info("[END] CreateFeatureHandler", "error", err)
 	return c.JSON(response.Status, response)
 }
 
-func UpdateFeatureHandler(c *echo.Context) error {
+func (h *FeatureHandler) Update(c *echo.Context) error {
 	c.Logger().Info("[START] UpdateFeatureHandler")
 	var request dto.FeatureRequest
 	if err := c.Bind(&request); err != nil {
@@ -42,15 +50,15 @@ func UpdateFeatureHandler(c *echo.Context) error {
 		return err
 	}
 	id := c.Param("id")
-	response, err := services.UpdateFeatureService(id, &request)
+	response, err := h.service.Update(id, &request)
 	c.Logger().Info("[END] UpdateFeatureHandler", "error", err)
 	return c.JSON(response.Status, response)
 }
 
-func DeleteFeatureHandler(c *echo.Context) error {
+func (h *FeatureHandler) Delete(c *echo.Context) error {
 	c.Logger().Info("[START] DeleteFeatureHandler")
 	id := c.Param("id")
-	response, err := services.DeleteFeatureService(id)
+	response, err := h.service.Delete(id)
 	c.Logger().Info("[END] DeleteFeatureHandler", "error", err)
 	return c.JSON(response.Status, response)
 }

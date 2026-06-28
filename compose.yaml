@@ -11,3 +11,9 @@ services:
       - "1000:1000"
     env_file:
       - .env
+    networks:
+      - postgresql-network
+
+networks:
+  postgresql-network:
+    external: true

@@ -6,6 +6,6 @@ import (
 	"github.com/labstack/echo/v5"
 )
 
-func BannerRoute(g *echo.Group) {
-	g.GET("/banner", handlers.ListBannerHandler)
+func BannerRoute(g *echo.Group, handler *handlers.BannerHandler) {
+	g.GET("/banner", handler.ListBanner)
 }

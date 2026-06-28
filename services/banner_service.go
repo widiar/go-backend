@@ -1,7 +1,19 @@
 package services
 
-import "backendmaw/dto"
+import (
+	"backendmaw/dto"
 
-func ListBannersService() (*dto.ResponseDto, error) {
+	"gorm.io/gorm"
+)
+
+type BannerService struct {
+	DB *gorm.DB
+}
+
+func NewBannerService(db *gorm.DB) *BannerService {
+	return &BannerService{db}
+}
+
+func (s *BannerService) ListBanner() (*dto.ResponseDto, error) {
 	return new(dto.SuccessResponse(nil)), nil
 }
