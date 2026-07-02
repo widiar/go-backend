@@ -17,14 +17,20 @@ func NewCalendarHandler(service *services.CalendarService) *CalendarHandler {
 }
 
 func (h *CalendarHandler) ListEventHolidayWfh(c *echo.Context) error {
-	var request dto.WfhRequest
+	response, err := h.service.EventWfh()
+	c.Logger().Info("[END] Service Calendar", "error", err)
+	return c.JSON(response.Status, response)
+}
+
+func (h *CalendarHandler) ConfigCalendar(c *echo.Context) error {
+	var request dto.CalendarConfigRequest
 	if err := c.Bind(&request); err != nil {
 		return c.JSON(http.StatusBadRequest, "Invalid request body")
 	}
 	if err := c.Validate(request); err != nil {
 		return err
 	}
-	response, err := h.service.EventWfh()
+	response, err := h.service.ConfigCalendar(&request)
 	c.Logger().Info("[END] Service Calendar", "error", err)
 	return c.JSON(response.Status, response)
 }

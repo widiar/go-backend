@@ -49,7 +49,7 @@ func (s *FeatureService) Create(feature *dto.FeatureRequest) (*dto.ResponseDto, 
 }
 
 func (s *FeatureService) Update(id string, feature *dto.FeatureRequest) (*dto.ResponseDto, error) {
-	switch err := UpdateAndValidate(s.DB, feature, "name", &id, func(r *dto.FeatureRequest) string { return r.Name }, &models.Feature{}); {
+	switch err := UpdateAndValidate(s.DB, feature, "name", id, func(r *dto.FeatureRequest) string { return r.Name }, &models.Feature{}); {
 	case err != nil:
 		if errors.Is(err, gorm.ErrDuplicatedKey) {
 			return new(dto.FailedResponse("Data already exists", http.StatusConflict)), err

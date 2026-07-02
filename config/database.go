@@ -25,7 +25,8 @@ func ConnectDB() *gorm.DB {
 	if errMigrate := database.AutoMigrate(
 		&models.Users{},
 		&models.Merchant{},
-		&models.Feature{}); errMigrate != nil {
+		&models.Feature{},
+		&models.ConfigCalendar{}); errMigrate != nil {
 		fmt.Println("ERROR Auto migrate", errMigrate)
 		panic("ERROR AutoMigrate DB")
 	}

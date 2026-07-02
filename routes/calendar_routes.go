@@ -8,4 +8,5 @@ import (
 
 func CalendarRoutes(g *echo.Group, handler *handlers.CalendarHandler) {
 	g.GET("/wfh", handler.ListEventHolidayWfh)
+	g.POST("/config", handler.ConfigCalendar)
 }

@@ -52,7 +52,7 @@ func (s *MerchantService) Create(merchant *dto.MerchantRequest) (*dto.ResponseDt
 
 func (s *MerchantService) Update(id string, merchant *dto.MerchantRequest) (*dto.ResponseDto, error) {
 	//check id exist or not
-	switch err := UpdateAndValidate(s.DB, merchant, "name", &id, func(r *dto.MerchantRequest) string { return r.Name }, models.Merchant{}); {
+	switch err := UpdateAndValidate(s.DB, merchant, "name", id, func(r *dto.MerchantRequest) string { return r.Name }, models.Merchant{}); {
 	case err != nil:
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return new(dto.FailedResponse("Merchant not found", http.StatusOK)), err

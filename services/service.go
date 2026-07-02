@@ -36,7 +36,7 @@ func CreateAndValidate[REQ any, M any](DB *gorm.DB, req *REQ, column string, get
 
 func UpdateAndValidate[REQ any, M any](
 	DB *gorm.DB,
-	req *REQ, columnUnique string, id *string, getKey func(*REQ) string, model M) error {
+	req *REQ, columnUnique string, id string, getKey func(*REQ) string, model M) error {
 	if err := DB.First(&model, "id = ?", id).Error; err != nil {
 		return err
 	}

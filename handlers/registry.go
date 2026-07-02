@@ -22,7 +22,7 @@ func Setup(db *gorm.DB, waContainer *sqlstore.Container) *Handlers {
 	featureService := services.NewFeatureService(db)
 	merchantService := services.NewMerchantService(db)
 	waService := services.NewWaService(waContainer)
-	calendarService := services.NewCalendarService()
+	calendarService := services.NewCalendarService(db)
 
 	return &Handlers{
 		Auth:     NewAuthHandler(authService),
