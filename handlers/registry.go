@@ -13,6 +13,7 @@ type Handlers struct {
 	Feature  *FeatureHandler
 	Merchant *MerchantHandler
 	Wa       *WaHandler
+	Calendar *CalendarHandler
 }
 
 func Setup(db *gorm.DB, waContainer *sqlstore.Container) *Handlers {
@@ -21,6 +22,7 @@ func Setup(db *gorm.DB, waContainer *sqlstore.Container) *Handlers {
 	featureService := services.NewFeatureService(db)
 	merchantService := services.NewMerchantService(db)
 	waService := services.NewWaService(waContainer)
+	calendarService := services.NewCalendarService()
 
 	return &Handlers{
 		Auth:     NewAuthHandler(authService),
@@ -28,5 +30,6 @@ func Setup(db *gorm.DB, waContainer *sqlstore.Container) *Handlers {
 		Feature:  NewFeatureHandler(featureService),
 		Merchant: NewMerchantHandler(merchantService),
 		Wa:       NewWaHandler(waService),
+		Calendar: NewCalendarHandler(calendarService),
 	}
 }

@@ -17,4 +17,6 @@ func Setup(e *echo.Echo, h *handlers.Handlers) {
 	FeatureRoutes(protectedGroup, h.Feature)
 	MerchantRoutes(protectedGroup, h.Merchant)
 	WaRoutes(protectedGroup, h.Wa)
+
+	CalendarRoutes(e.Group("/public"), h.Calendar)
 }
